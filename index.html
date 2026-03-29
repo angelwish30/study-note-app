@@ -367,7 +367,7 @@ async function persistAll(skipDriveSchedule=false){
       return false;
     }
   }
-} }
+} 
 async function loadAll(){ try{ notes=await dbGet('notes')||[]; ekgis=await dbGet('ekgis')||[]; subjects=await dbGet('subjects')||DEF_SUBJECTS.slice(); document.getElementById('storageNotice').textContent='저장은 IndexedDB로 동작 중이에요. 엣지에서도 저장되도록 개선했어요.'; }catch(e){ try{ notes=JSON.parse(localStorage.getItem('notes_fallback')||'[]'); ekgis=JSON.parse(localStorage.getItem('ekgis_fallback')||'[]'); subjects=JSON.parse(localStorage.getItem('subjects_fallback')||'null')||DEF_SUBJECTS.slice(); document.getElementById('storageNotice').textContent='IndexedDB 대신 브라우저 저장소로 동작 중이에요.'; }catch(err){ notes=[]; ekgis=[]; subjects=DEF_SUBJECTS.slice(); document.getElementById('storageNotice').textContent='이 브라우저 환경에서는 저장 제한이 있을 수 있어요. 반드시 브라우저 앱에서 열어 주세요.'; } } }
 function toggleFilterBox(){
   filterCollapsed = !filterCollapsed;
