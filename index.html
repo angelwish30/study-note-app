@@ -31,7 +31,15 @@ body{font-family:'Nanum Gothic',sans-serif;background:var(--bg);color:var(--text
 .backup-btn{flex:1;min-width:140px;padding:10px 12px;border-radius:12px;border:2px solid var(--border);background:#fff;color:var(--muted);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
 .sync-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 .sync-btn{flex:1;min-width:140px;padding:10px 12px;border-radius:12px;border:2px solid var(--border);background:#fff;color:var(--muted);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
-.sync-status{font-size:12px;color:var(--muted);margin:-4px 0 12px}
+.sync-status{font-size:12px;color:var(--muted);margin:-4px 0 12px;padding:8px 10px;border-radius:10px;background:#fff;border:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.sync-dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:#bbb;flex:0 0 auto}
+.sync-dot.idle{background:#bbb}
+.sync-dot.ready{background:#6c9}
+.sync-dot.syncing{background:#4da3ff;box-shadow:0 0 0 0 rgba(77,163,255,.6);animation:pulse 1.2s infinite}
+.sync-dot.success{background:#41c463}
+.sync-dot.error{background:#ff5a6b}
+.sync-dot.offline{background:#ffb347}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(77,163,255,.6)}70%{box-shadow:0 0 0 10px rgba(77,163,255,0)}100%{box-shadow:0 0 0 0 rgba(77,163,255,0)}}
 .search-wrap{margin-bottom:12px}
 .search-bar{background:#fff;border-radius:12px;display:flex;align-items:center;padding:9px 14px;gap:8px;border:2px solid var(--border)}
 .search-bar input{background:none;border:none;outline:none;color:var(--text);font-size:14px;width:100%;font-family:inherit}
@@ -150,7 +158,7 @@ body{font-family:'Nanum Gothic',sans-serif;background:var(--bg);color:var(--text
 </div>
 <div class="sub-header"><div class="subject-scroll" id="subjectChips"></div></div>
 <div class="content">
-  <div class="notice" id="storageNotice">로컬 저장은 그대로 되고, 구글 드라이브 자동 동기화는 HTTPS로 올린 뒤 OAuth 설정을 해야 사용할 수 있어요.</div>
+  <div class="notice" id="storageNotice">로컬 저장은 그대로 되고, Drive 동기화는 연결 후 변경사항이 자동으로 반영돼요. 처음 설정만 HTTPS와 OAuth가 필요해요.</div>
   <div class="backup-bar">
     <button class="backup-btn" type="button" onclick="exportBackup()">📤 데이터 내보내기</button>
     <button class="backup-btn" type="button" onclick="document.getElementById('importFileInput').click()">📥 데이터 불러오기</button>
@@ -161,7 +169,7 @@ body{font-family:'Nanum Gothic',sans-serif;background:var(--bg);color:var(--text
     <button class="sync-btn" type="button" onclick="syncFromDrive()">☁️ Drive에서 불러오기</button>
     <button class="sync-btn" type="button" onclick="syncToDrive(true)">☁️ Drive에 저장</button>
   </div>
-  <div class="sync-status" id="syncStatus">자동 동기화 준비 전</div>
+  <div class="sync-status" id="syncStatusWrap"><span class="sync-dot idle" id="syncDot"></span><span id="syncStatus">자동 동기화 준비 전</span></div>
   <div class="view-tabs">
     <button class="view-tab active" id="viewListBtn" onclick="setView('list')">목록</button>
     <button class="view-tab" id="viewRecommendBtn" onclick="setView('recommend')">추천 복습</button>
@@ -340,7 +348,26 @@ function subjectInfo(name){ return subjects.find(s=>s.name===name)||{color:'#9C2
 function openDB(){ return new Promise((resolve,reject)=>{ const req=indexedDB.open(DB_NAME,1); req.onupgradeneeded=e=>{ const db=e.target.result; if(!db.objectStoreNames.contains(DB_STORE)) db.createObjectStore(DB_STORE,{keyPath:'key'}); }; req.onsuccess=()=>resolve(req.result); req.onerror=()=>reject(req.error); });}
 async function dbGet(key){ const db=await openDB(); return new Promise((resolve,reject)=>{ const tx=db.transaction(DB_STORE,'readonly'); const st=tx.objectStore(DB_STORE); const req=st.get(key); req.onsuccess=()=>resolve(req.result ? req.result.value : null); req.onerror=()=>reject(req.error); });}
 async function dbSet(key,value){ const db=await openDB(); return new Promise((resolve,reject)=>{ const tx=db.transaction(DB_STORE,'readwrite'); const st=tx.objectStore(DB_STORE); const req=st.put({key,value}); req.onsuccess=()=>resolve(true); req.onerror=()=>reject(req.error); });}
-async function persistAll(){ try{ await dbSet('notes',notes); await dbSet('ekgis',ekgis); await dbSet('subjects',subjects); if(googleAccessToken && location.protocol !== 'file:'){ setTimeout(()=>syncToDrive(false), 0); } return true; }catch(e){ try{ localStorage.setItem('notes_fallback',JSON.stringify(notes)); localStorage.setItem('ekgis_fallback',JSON.stringify(ekgis)); localStorage.setItem('subjects_fallback',JSON.stringify(subjects)); if(googleAccessToken && location.protocol !== 'file:'){ setTimeout(()=>syncToDrive(false), 0); } return true; }catch(err){ alert('저장에 실패했어요. 파일 앱 미리보기가 아닌 크롬/삼성 인터넷/엣지에서 다시 열어 주세요.'); return false; } } }
+async function persistAll(skipDriveSchedule=false){
+  try{
+    await dbSet('notes', notes);
+    await dbSet('ekgis', ekgis);
+    await dbSet('subjects', subjects);
+    if(!skipDriveSchedule) scheduleAutoSync();
+    return true;
+  }catch(e){
+    try{
+      localStorage.setItem('notes_fallback', JSON.stringify(notes));
+      localStorage.setItem('ekgis_fallback', JSON.stringify(ekgis));
+      localStorage.setItem('subjects_fallback', JSON.stringify(subjects));
+      if(!skipDriveSchedule) scheduleAutoSync();
+      return true;
+    }catch(err){
+      alert('저장에 실패했어요. 파일 앱 미리보기가 아닌 크롬/삼성 인터넷/엣지에서 다시 열어 주세요.');
+      return false;
+    }
+  }
+} }
 async function loadAll(){ try{ notes=await dbGet('notes')||[]; ekgis=await dbGet('ekgis')||[]; subjects=await dbGet('subjects')||DEF_SUBJECTS.slice(); document.getElementById('storageNotice').textContent='저장은 IndexedDB로 동작 중이에요. 엣지에서도 저장되도록 개선했어요.'; }catch(e){ try{ notes=JSON.parse(localStorage.getItem('notes_fallback')||'[]'); ekgis=JSON.parse(localStorage.getItem('ekgis_fallback')||'[]'); subjects=JSON.parse(localStorage.getItem('subjects_fallback')||'null')||DEF_SUBJECTS.slice(); document.getElementById('storageNotice').textContent='IndexedDB 대신 브라우저 저장소로 동작 중이에요.'; }catch(err){ notes=[]; ekgis=[]; subjects=DEF_SUBJECTS.slice(); document.getElementById('storageNotice').textContent='이 브라우저 환경에서는 저장 제한이 있을 수 있어요. 반드시 브라우저 앱에서 열어 주세요.'; } } }
 function toggleFilterBox(){
   filterCollapsed = !filterCollapsed;
@@ -647,23 +674,33 @@ async function importBackup(event){
 
 
 
+
 const GOOGLE_SYNC_CONFIG = {
-  CLIENT_ID: '773999061709-1itpeii7g4dk1dcsq593sd8gt64e1jcj.apps.googleusercontent.com',
+  CLIENT_ID: '여기에_구글_OAuth_클라이언트_ID_입력',
   SYNC_FILE_NAME: 'study_note_sync.json',
-  DRIVE_SCOPE: 'https://www.googleapis.com/auth/drive.file'
+  DRIVE_SCOPE: 'https://www.googleapis.com/auth/drive.file',
+  AUTO_SYNC_DEBOUNCE_MS: 6000,
+  AUTO_SYNC_INTERVAL_MS: 30000
 };
 let googleTokenClient = null;
 let googleAccessToken = null;
 let googleSyncFileId = null;
+let autoSyncTimer = null;
+let autoSyncInterval = null;
+let isSyncing = false;
+let pendingChanges = false;
+let lastSyncAt = null;
 
-function setSyncStatus(text){
+function setSyncStatus(text, state='idle'){
   const el = document.getElementById('syncStatus');
+  const dot = document.getElementById('syncDot');
   if(el) el.textContent = text;
+  if(dot) dot.className = 'sync-dot ' + state;
 }
 function makeSyncPayload(){
   return {
     app: 'study_note_app',
-    version: 18,
+    version: 19,
     syncedAt: new Date().toISOString(),
     notes,
     ekgis,
@@ -676,6 +713,43 @@ function googleSyncReady(){
 function hasGoogleClientId(){
   return GOOGLE_SYNC_CONFIG.CLIENT_ID && !GOOGLE_SYNC_CONFIG.CLIENT_ID.includes('여기에_구글_OAuth_클라이언트_ID_입력');
 }
+function scheduleAutoSync(){
+  pendingChanges = true;
+  if(location.protocol === 'file:') return;
+  if(!googleAccessToken){
+    setSyncStatus('로컬 저장됨 · Drive 연결 필요', 'idle');
+    return;
+  }
+  if(!navigator.onLine){
+    setSyncStatus('오프라인 상태 · 온라인 복귀 시 재시도', 'offline');
+    return;
+  }
+  if(autoSyncTimer) clearTimeout(autoSyncTimer);
+  autoSyncTimer = setTimeout(() => {
+    syncToDrive(false);
+  }, GOOGLE_SYNC_CONFIG.AUTO_SYNC_DEBOUNCE_MS);
+  setSyncStatus('변경 감지됨 · 곧 자동 동기화', 'syncing');
+}
+function startAutoSyncLoop(){
+  if(autoSyncInterval) clearInterval(autoSyncInterval);
+  autoSyncInterval = setInterval(() => {
+    if(googleAccessToken && pendingChanges && navigator.onLine && !isSyncing){
+      syncToDrive(false);
+    }
+  }, GOOGLE_SYNC_CONFIG.AUTO_SYNC_INTERVAL_MS);
+}
+window.addEventListener('online', () => {
+  if(googleAccessToken && pendingChanges){
+    setSyncStatus('온라인 복귀 · 동기화 재시도', 'syncing');
+    syncToDrive(false);
+  } else {
+    setSyncStatus('온라인 상태', googleAccessToken ? 'ready' : 'idle');
+  }
+});
+window.addEventListener('offline', () => {
+  setSyncStatus('오프라인 상태 · 로컬 저장만 가능', 'offline');
+});
+
 async function signInGoogleDrive(){
   if(location.protocol === 'file:'){
     alert('구글 드라이브 자동 동기화는 file://로 연 HTML에서는 동작하지 않아요. 이 파일을 HTTPS 주소(예: GitHub Pages, Netlify)로 올린 뒤 사용해야 해요.');
@@ -686,6 +760,7 @@ async function signInGoogleDrive(){
     return;
   }
   if(!googleSyncReady()){
+    setSyncStatus('구글 인증 라이브러리 로딩 중… 잠시 후 다시 시도', 'syncing');
     alert('구글 인증 라이브러리를 아직 불러오는 중이에요. 잠시 후 다시 눌러 주세요.');
     return;
   }
@@ -696,22 +771,32 @@ async function signInGoogleDrive(){
       callback: async (resp) => {
         if(resp && resp.access_token){
           googleAccessToken = resp.access_token;
-          setSyncStatus('구글 드라이브 연결됨');
+          setSyncStatus('구글 드라이브 연결됨', 'ready');
+          startAutoSyncLoop();
           await findSyncFile();
+          if(pendingChanges) scheduleAutoSync();
+        } else {
+          setSyncStatus('구글 로그인 실패', 'error');
         }
+      },
+      error_callback: () => {
+        setSyncStatus('구글 로그인 실패', 'error');
       }
     });
   }
   googleTokenClient.requestAccessToken({prompt: googleAccessToken ? '' : 'consent'});
 }
 async function googleApi(url, options={}){
-  if(!googleAccessToken){
-    throw new Error('NO_TOKEN');
-  }
+  if(!googleAccessToken) throw new Error('NO_TOKEN');
   const headers = Object.assign({}, options.headers || {}, {
     Authorization: 'Bearer ' + googleAccessToken
   });
   const resp = await fetch(url, Object.assign({}, options, {headers}));
+  if(resp.status === 401){
+    googleAccessToken = null;
+    setSyncStatus('로그인 만료 · 다시 연결 필요', 'error');
+    throw new Error('TOKEN_EXPIRED');
+  }
   if(!resp.ok){
     const text = await resp.text();
     throw new Error(text || ('HTTP ' + resp.status));
@@ -725,18 +810,15 @@ async function findSyncFile(){
   const data = await resp.json();
   if(data.files && data.files.length){
     googleSyncFileId = data.files[0].id;
-    setSyncStatus('동기화 파일 연결됨');
-  }else{
+    setSyncStatus('동기화 파일 연결됨', 'ready');
+  } else {
     googleSyncFileId = null;
-    setSyncStatus('동기화 파일 없음 - 첫 저장 시 생성됨');
+    setSyncStatus('동기화 파일 없음 - 첫 저장 시 생성됨', 'ready');
   }
 }
 async function uploadSyncPayload(payloadObj){
   const boundary = '-------314159265358979323846';
-  const metadata = {
-    name: GOOGLE_SYNC_CONFIG.SYNC_FILE_NAME,
-    mimeType: 'application/json'
-  };
+  const metadata = { name: GOOGLE_SYNC_CONFIG.SYNC_FILE_NAME, mimeType: 'application/json' };
   const body =
     '--' + boundary + '\r\n' +
     'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
@@ -751,7 +833,7 @@ async function uploadSyncPayload(payloadObj){
   if(googleSyncFileId){
     url += '/' + googleSyncFileId + '?uploadType=multipart';
     method = 'PATCH';
-  }else{
+  } else {
     url += '?uploadType=multipart';
   }
 
@@ -761,10 +843,7 @@ async function uploadSyncPayload(payloadObj){
     body
   });
   const saved = await resp.json();
-  if(saved && saved.id){
-    googleSyncFileId = saved.id;
-  }
-  setSyncStatus('Drive 동기화 완료');
+  if(saved && saved.id) googleSyncFileId = saved.id;
 }
 async function syncToDrive(showAlert=false){
   try{
@@ -772,19 +851,35 @@ async function syncToDrive(showAlert=false){
       if(showAlert) alert('구글 드라이브 자동 동기화는 file://로 연 HTML에서는 동작하지 않아요. HTTPS로 올린 뒤 사용해 주세요.');
       return;
     }
+    if(isSyncing) return;
     if(!googleAccessToken){
       if(showAlert) alert('먼저 "구글 드라이브 연결"을 눌러 로그인해 주세요.');
+      setSyncStatus('Drive 미연결', 'idle');
       return;
     }
-    if(!googleSyncFileId){
-      await findSyncFile();
+    if(!navigator.onLine){
+      setSyncStatus('오프라인 상태 · 동기화 대기 중', 'offline');
+      return;
     }
-    const payload = makeSyncPayload();
-    await uploadSyncPayload(payload);
+    isSyncing = true;
+    setSyncStatus('Drive 동기화 중…', 'syncing');
+    if(!googleSyncFileId) await findSyncFile();
+    await uploadSyncPayload(makeSyncPayload());
+    pendingChanges = false;
+    lastSyncAt = new Date();
+    setSyncStatus('Drive 동기화 완료 · ' + lastSyncAt.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit', second:'2-digit'}), 'success');
     if(showAlert) alert('구글 드라이브에 저장했어요.');
-  }catch(e){
-    if(showAlert) alert('Drive 저장 중 오류가 발생했어요.');
-    setSyncStatus('Drive 저장 오류');
+  } catch(e){
+    pendingChanges = true;
+    if(String(e).includes('TOKEN_EXPIRED')){
+      if(showAlert) alert('로그인이 만료되었어요. 다시 구글 드라이브 연결을 눌러 주세요.');
+      setSyncStatus('로그인 만료 · 다시 연결 필요', 'error');
+    } else {
+      if(showAlert) alert('Drive 저장 중 오류가 발생했어요.');
+      setSyncStatus('Drive 저장 오류 · 자동 재시도 예정', 'error');
+    }
+  } finally {
+    isSyncing = false;
   }
 }
 async function syncFromDrive(){
@@ -797,6 +892,7 @@ async function syncFromDrive(){
       alert('먼저 "구글 드라이브 연결"을 눌러 로그인해 주세요.');
       return;
     }
+    setSyncStatus('Drive에서 불러오는 중…', 'syncing');
     if(!googleSyncFileId){
       await findSyncFile();
       if(!googleSyncFileId){
@@ -813,23 +909,23 @@ async function syncFromDrive(){
     notes = Array.isArray(parsed.notes) ? parsed.notes : [];
     ekgis = Array.isArray(parsed.ekgis) ? parsed.ekgis : [];
     subjects = Array.isArray(parsed.subjects) && parsed.subjects.length ? parsed.subjects : DEF_SUBJECTS.slice();
-    const ok = await persistAll();
+    const ok = await persistAll(true);
     if(ok){
+      pendingChanges = false;
       resetFilters();
       populateSubjectSelects();
       populateGradeSelects();
       closeAll();
       render();
-      setSyncStatus('Drive에서 불러오기 완료');
+      setSyncStatus('Drive에서 불러오기 완료', 'success');
       alert('구글 드라이브에서 데이터를 불러왔어요.');
     }
-  }catch(e){
+  } catch(e){
     alert('Drive에서 불러오는 중 오류가 발생했어요.');
-    setSyncStatus('Drive 불러오기 오류');
+    setSyncStatus('Drive 불러오기 오류', 'error');
   }
 }
-
-async function init(){ await loadAll(); populateSubjectSelects(); populateGradeSelects(); initStars(); syncViewButtons(); toggleModeSpecificUI(); render(); }
+async function init(){ setSyncStatus('자동 동기화 준비 전', 'idle'); startAutoSyncLoop(); await loadAll(); populateSubjectSelects(); populateGradeSelects(); initStars(); syncViewButtons(); toggleModeSpecificUI(); render(); }
 init();
 </script>
 </body>
