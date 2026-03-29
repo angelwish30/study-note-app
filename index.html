@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>♡이서현♡의 공부 필살 노트!</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#FF6B9D; --primary2:#C44FFF; --odap:#FF5252; --ekgi:#7C4DFF;
+  --bg:#FFF5FB; --card:#FFFFFF; --text:#2D1B33; --muted:#9B8FA3; --border:#F0E0F5;
+  --shadow:0 2px 16px rgba(255,107,157,0.10); --radius:18px; --radius-sm:11px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Nanum Gothic',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.header{background:linear-gradient(135deg,#FF6B9D 0%,#C44FFF 100%);padding:18px 16px 0;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(196,79,255,0.3)}
+.app-title{font-family:'Nanum Pen Script',cursive;font-size:22px;color:#fff;text-align:center;margin-bottom:4px}
+.app-sub{font-size:11px;color:rgba(255,255,255,0.75);text-align:center;margin-bottom:14px}
+.main-tabs{display:flex;gap:10px}
+.main-tab{flex:1;padding:11px 0 13px;text-align:center;font-size:14px;font-weight:800;color:rgba(255,255,255,0.65);cursor:pointer;border-radius:14px 14px 0 0;border:none;background:rgba(255,255,255,0.12)}
+.main-tab.active{background:#fff;color:var(--primary)}
+.sub-header{background:#fff;padding:10px 14px 0;border-bottom:1px solid var(--border)}
+.subject-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none}
+.subject-scroll::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;background:var(--bg);color:var(--muted);border:2px solid var(--border)}
+.chip.active{color:#fff;border-color:transparent}
+.chip-add{border:2px dashed var(--border);background:transparent}
+.content{padding:14px;padding-bottom:100px}
+.notice{background:#fff;border:1px solid var(--border);border-radius:14px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--muted)}
+.backup-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.backup-btn{flex:1;min-width:140px;padding:10px 12px;border-radius:12px;border:2px solid var(--border);background:#fff;color:var(--muted);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
+.sync-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.sync-btn{flex:1;min-width:140px;padding:10px 12px;border-radius:12px;border:2px solid var(--border);background:#fff;color:var(--muted);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
+.sync-status{font-size:12px;color:var(--muted);margin:-4px 0 12px}
+.search-wrap{margin-bottom:12px}
+.search-bar{background:#fff;border-radius:12px;display:flex;align-items:center;padding:9px 14px;gap:8px;border:2px solid var(--border)}
+.search-bar input{background:none;border:none;outline:none;color:var(--text);font-size:14px;width:100%;font-family:inherit}
+.view-tabs{display:flex;gap:8px;margin-bottom:12px}
+.view-tab{flex:1;padding:11px 10px;border-radius:12px;border:2px solid var(--border);background:#fff;color:var(--muted);font-size:13px;font-weight:800;cursor:pointer}
+.view-tab.active{background:linear-gradient(135deg,#FF6B9D,#C44FFF);color:#fff;border-color:transparent}
+.filter-box{background:#fff;border-radius:var(--radius);padding:12px;margin-bottom:12px;box-shadow:var(--shadow)}
+.filter-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;margin-bottom:8px}
+.filter-header-title{font-size:13px;font-weight:800;color:var(--muted)}
+.filter-toggle{font-size:13px;font-weight:800;color:var(--primary)}
+.filter-content.collapsed{display:none}
+.filter-title{font-size:12px;color:var(--muted);font-weight:800;margin-bottom:8px}
+.filter-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.check-wrap{max-height:104px;overflow:auto;padding-right:4px}
+.check-grid{display:grid;grid-template-columns:1fr;gap:6px}
+.check-item{display:flex;align-items:center;gap:6px;background:var(--bg);border-radius:10px;padding:7px 9px;font-size:12px;font-weight:700}
+.check-item input{accent-color:var(--primary)}
+.form-select-small{width:100%;border:2px solid var(--border);border-radius:11px;padding:10px 12px;background:var(--bg);font-size:13px;font-family:inherit}
+.note-card{background:var(--card);border-radius:var(--radius);margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden;cursor:pointer}
+.card-accent{height:5px}
+.card-body{padding:13px 14px}
+.card-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px}
+.card-subject-badge{font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px}
+.card-grade{font-size:11px;color:var(--muted)}
+.card-title{font-size:15px;font-weight:800;margin-bottom:4px;line-height:1.4}
+.card-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.meta-tag{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--bg);color:var(--muted);font-weight:700}
+.card-date{font-size:11px;color:var(--muted)}
+.metric-line{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:12px;margin-top:6px}
+.metric-label{font-weight:800;color:var(--muted);margin-right:4px}
+.ekgi-card{background:linear-gradient(135deg,#F3E7FF,#EDE0FF);border-left:5px solid var(--ekgi)}
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty .icon{font-size:60px;margin-bottom:14px}
+.recommend-card,.exam-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:12px}
+.recommend-rank{display:inline-block;background:#fff0f7;color:var(--primary);font-weight:800;border-radius:999px;padding:4px 10px;font-size:12px;margin-bottom:8px}
+.exam-actions{display:flex;gap:8px;margin-top:12px}
+.btn-main,.fab{background:linear-gradient(135deg,#FF6B9D,#C44FFF);color:#fff;border:none;font-weight:800;cursor:pointer;font-family:inherit}
+.btn-main{padding:12px 14px;border-radius:12px}
+.btn-secondary{background:#fff;border:2px solid var(--border);color:var(--muted);font-weight:800;cursor:pointer;font-family:inherit;padding:12px 14px;border-radius:12px}
+.fab{position:fixed;bottom:24px;right:20px;z-index:200;border-radius:28px;padding:14px 20px;font-size:15px;box-shadow:0 6px 24px rgba(196,79,255,0.4);display:flex;align-items:center;gap:8px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;opacity:0;pointer-events:none;transition:opacity .25s}
+.overlay.show{opacity:1;pointer-events:all}
+.sheet{position:fixed;bottom:0;left:0;right:0;z-index:400;background:var(--card);border-radius:24px 24px 0 0;max-height:93vh;overflow-y:auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);padding-bottom:env(safe-area-inset-bottom,20px)}
+.sheet.show{transform:translateY(0)}
+.sheet-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 0}
+.sheet-header{padding:14px 18px 0;display:flex;justify-content:space-between;align-items:center}
+.sheet-title{font-size:17px;font-weight:800}
+.sheet-body{padding:14px 18px 30px}
+.btn-close,.btn-back{background:var(--bg);border:none;color:var(--muted);height:34px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.btn-close{width:34px}.btn-back{width:auto;padding:0 12px;border-radius:18px;font-size:13px;font-weight:700}
+.top-actions{display:flex;gap:8px;align-items:center}
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;font-weight:800;color:var(--muted);margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.required{color:var(--primary);font-size:13px}
+.form-input,.form-select,.form-textarea{width:100%;border:2px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;font-size:14px;font-family:inherit;background:var(--bg);color:var(--text);outline:none}
+.form-textarea{min-height:72px;resize:vertical}
+.form-row{display:flex;gap:10px}.form-row .form-group{flex:1}
+.radio-group{display:flex;flex-wrap:wrap;gap:8px}
+.radio-opt{padding:7px 13px;border-radius:20px;border:2px solid var(--border);font-size:13px;font-weight:700;cursor:pointer;background:var(--bg);color:var(--muted)}
+.radio-opt.sel{border-color:var(--primary);background:#FFF0F7;color:var(--primary)}
+.radio-opt.sel-ekgi{border-color:var(--ekgi);background:#F3E7FF;color:var(--ekgi)}
+.star-section{display:flex;gap:16px}
+.star-group{flex:1}
+.star-group-label{font-size:12px;color:var(--muted);font-weight:700;margin-bottom:5px}
+.star-row{display:flex;gap:4px}
+.star-btn{font-size:24px;cursor:pointer;background:none;border:none;opacity:.25;line-height:1}
+.star-btn.active{opacity:1}
+.img-area{border:2px dashed var(--border);border-radius:var(--radius-sm);padding:12px;background:var(--bg)}
+.img-preview{width:100%;max-height:180px;object-fit:contain;border-radius:8px;margin-bottom:8px}
+.multi-preview{display:none;gap:8px;flex-wrap:wrap}
+.multi-preview img{width:100px;max-width:100px;height:100px;object-fit:cover;border-radius:8px;border:1px solid var(--border);background:#fff}
+.img-btns{display:flex;gap:8px}
+.btn-sm{padding:7px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid var(--border);background:#fff;color:var(--text);font-family:inherit}
+.btn-save{width:100%;padding:15px;border-radius:var(--radius);background:linear-gradient(135deg,#FF6B9D,#C44FFF);color:#fff;border:none;font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;margin-top:10px}
+.btn-save-ekgi{background:linear-gradient(135deg,#7C4DFF,#C44FFF)}
+.detail-section{margin-bottom:14px}
+.detail-label{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.detail-value{font-size:14px;line-height:1.6;background:var(--bg);padding:11px 13px;border-radius:var(--radius-sm)}
+.dv-reason{background:#FFF8E1;color:#E65100}
+.detail-img{width:100%;border-radius:var(--radius-sm);margin-bottom:10px}
+.detail-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.btn-act{flex:1;min-width:70px;padding:11px 8px;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;border:none;font-family:inherit}
+.ba-edit{background:#EDE7F6;color:#5E35B1}.ba-print{background:#E8F5E9;color:#2E7D32}.ba-del{background:var(--bg);color:var(--muted);border:2px solid var(--border)!important}
+.dialog-overlay{position:fixed;inset:0;z-index:490;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .2s}
+.dialog-overlay.show{opacity:1;pointer-events:all}
+.dialog{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;pointer-events:none;opacity:0;transition:opacity .2s}
+.dialog.show{opacity:1;pointer-events:all}
+.dialog-box{background:var(--card);border-radius:22px;padding:22px;width:100%;max-width:340px;box-shadow:0 8px 32px rgba(255,107,157,0.18);transform:scale(.9);transition:transform .2s}
+.dialog.show .dialog-box{transform:scale(1)}
+.dialog-title{font-size:16px;font-weight:800;margin-bottom:14px}
+.emoji-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:10px 0}
+.emoji-opt{font-size:22px;text-align:center;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent}
+.emoji-opt.sel{border-color:var(--primary);background:#FFF0F7}
+.color-grid{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 14px}
+.color-dot{width:30px;height:30px;border-radius:50%;cursor:pointer;border:3px solid transparent}
+.color-dot.sel{border-color:var(--text)}
+.dialog-btns{display:flex;gap:10px}
+.btn-cancel{flex:1;padding:11px;border-radius:10px;background:var(--bg);border:2px solid var(--border);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-confirm{flex:1;padding:11px;border-radius:10px;background:linear-gradient(135deg,#FF6B9D,#C44FFF);color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.is-hidden{display:none!important}
+@media (max-width:700px){.filter-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:480px){.form-row,.exam-actions,.view-tabs{flex-direction:column}.filter-grid{grid-template-columns:1fr}}
+@media print{body>*:not(#printArea){display:none!important}#printArea{display:block!important}}
+#printArea{display:none}
+</style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+<div class="header">
+  <div class="app-title">♡이서현♡의 공부 필살 노트!</div>
+  <div class="app-sub">열심히 하는 이서현 화이팅! 🌸</div>
+  <div class="main-tabs">
+    <button class="main-tab active" id="tabOdap" onclick="switchMain('odap')">📝 오답노트</button>
+    <button class="main-tab" id="tabEkgi" onclick="switchMain('ekgi')">⭐ 핵심 액기스</button>
+  </div>
+</div>
+<div class="sub-header"><div class="subject-scroll" id="subjectChips"></div></div>
+<div class="content">
+  <div class="notice" id="storageNotice">로컬 저장은 그대로 되고, 구글 드라이브 자동 동기화는 HTTPS로 올린 뒤 OAuth 설정을 해야 사용할 수 있어요.</div>
+  <div class="backup-bar">
+    <button class="backup-btn" type="button" onclick="exportBackup()">📤 데이터 내보내기</button>
+    <button class="backup-btn" type="button" onclick="document.getElementById('importFileInput').click()">📥 데이터 불러오기</button>
+    <input id="importFileInput" type="file" accept=".json,application/json" style="display:none" onchange="importBackup(event)">
+  </div>
+  <div class="sync-bar">
+    <button class="sync-btn" type="button" onclick="signInGoogleDrive()">🔐 구글 드라이브 연결</button>
+    <button class="sync-btn" type="button" onclick="syncFromDrive()">☁️ Drive에서 불러오기</button>
+    <button class="sync-btn" type="button" onclick="syncToDrive(true)">☁️ Drive에 저장</button>
+  </div>
+  <div class="sync-status" id="syncStatus">자동 동기화 준비 전</div>
+  <div class="view-tabs">
+    <button class="view-tab active" id="viewListBtn" onclick="setView('list')">목록</button>
+    <button class="view-tab" id="viewRecommendBtn" onclick="setView('recommend')">추천 복습</button>
+    <button class="view-tab" id="viewExamBtn" onclick="setView('exam')">시험 대비</button>
+  </div>
+  <div class="search-wrap"><div class="search-bar"><span>🔍</span><input type="text" id="searchInput" placeholder="단원명, 출처, 메모로 검색" oninput="render()"></div></div>
+  <div class="filter-box" id="filterBox">
+    <div class="filter-header" role="button" tabindex="0" onclick="toggleFilterBox()" onkeydown="if(event.key==='Enter'||event.key===' '){toggleFilterBox();event.preventDefault();}">
+      <div class="filter-header-title">필터</div>
+      <div class="filter-toggle" id="filterToggleText">접기 ▲</div>
+    </div>
+    <div class="filter-content" id="filterContent">
+    <div class="filter-grid">
+      <div>
+        <div class="filter-title">학년-학기</div>
+        <div class="check-wrap"><div class="check-grid" id="gradeChecks"></div></div>
+      </div>
+      <div>
+        <div class="filter-title">관련 단원</div>
+        <select class="form-select-small" id="unitFilter" onchange="render()"><option value="">전체 단원</option></select>
+        <div id="wrongFilterWrap" style="margin-top:8px">
+          <div class="filter-title">틀린 횟수</div>
+          <select class="form-select-small" id="wrongFilter" onchange="render()">
+            <option value="">전체</option><option value="1회">1회</option><option value="2회">2회</option><option value="3회 이상">3회 이상</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <div id="difficultyFilterWrap" style="flex:1">
+          <div class="filter-title">난이도</div>
+          <select class="form-select-small" id="difficultyFilter" onchange="render()">
+            <option value="">전체</option>
+            <option value="1">♥ 1</option><option value="2">♥ 2</option><option value="3">♥ 3</option><option value="4">♥ 4</option><option value="5">♥ 5</option>
+          </select>
+        </div>
+        <div id="importanceFilterWrap" style="flex:1">
+          <div class="filter-title">중요도</div>
+          <select class="form-select-small" id="importanceFilter" onchange="render()">
+            <option value="">전체</option>
+            <option value="1">★ 1</option><option value="2">★ 2</option><option value="3">★ 3</option><option value="4">★ 4</option><option value="5">★ 5</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+  <div id="mainView"></div>
+</div>
+
+<button class="fab" onclick="openAdd()">✏️ 추가하기</button>
+<div class="overlay" id="overlay" onclick="closeAll()"></div>
+
+<div class="sheet" id="addSheetOdap">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="top-actions"><button class="btn-back" onclick="closeAll()">← 이전</button><div class="sheet-title" id="sheetTitleOdap">📝 오답 추가</div></div>
+    <button class="btn-close" onclick="closeAll()">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">📌 과목 <span class="required">*</span></label><select class="form-select" id="of_subject"></select></div>
+      <div class="form-group"><label class="form-label">📅 학년/학기 <span class="required">*</span></label><select class="form-select" id="of_grade"></select></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">📚 출처1 <span class="required">*</span></label>
+      <div class="radio-group" id="of_src1">
+        <div class="radio-opt" onclick="selRadio('of_src1',this,'학교 시험/교과서')">학교 시험/교과서</div>
+        <div class="radio-opt" onclick="selRadio('of_src1',this,'학원 시험/교재')">학원 시험/교재</div>
+        <div class="radio-opt" onclick="selRadio('of_src1',this,'개인 문제집')">개인 문제집</div>
+        <div class="radio-opt" onclick="selRadio('of_src1',this,'기타')">기타</div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">📝 출처2 (자유 입력)</label><input class="form-input" id="of_src2" placeholder="예) 2024 수능특강, OO학원 모의고사"></div>
+    <div class="form-group"><label class="form-label">📐 관련 단원 <span class="required">*</span></label><input class="form-input" id="of_unit" placeholder="예) 1-1. 이차 방정식, X-X(단원번호). OOOOO(단원 제목)"></div>
+    <div class="form-group">
+      <label class="form-label">🖼️ 문제 사진 <span class="required">*</span></label>
+      <div class="img-area"><div id="of_img_preview" class="multi-preview"></div><div class="img-btns"><button class="btn-sm" onclick="document.getElementById('of_img_input').click()">📷 사진 선택</button><button class="btn-sm" onclick="clearImg('of_img_preview','of_img_input','odap_prob')">🗑️ 삭제</button></div></div>
+      <input type="file" id="of_img_input" accept="image/*" multiple style="display:none" onchange="handleImg(event,'of_img_preview','odap_prob')">
+    </div>
+    <div class="form-group">
+      <label class="form-label">❌ 틀린 횟수 <span class="required">*</span></label>
+      <div class="radio-group" id="of_wrong">
+        <div class="radio-opt" onclick="selRadio('of_wrong',this,'1회')">1회</div>
+        <div class="radio-opt" onclick="selRadio('of_wrong',this,'2회')">2회</div>
+        <div class="radio-opt" onclick="selRadio('of_wrong',this,'3회 이상')">3회 이상</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">💡 정답 및 문제풀이(사진) <span class="required">*</span></label>
+      <div class="img-area"><div id="of_sol_preview" class="multi-preview"></div><div class="img-btns"><button class="btn-sm" onclick="document.getElementById('of_sol_input').click()">📷 사진 선택</button><button class="btn-sm" onclick="clearImg('of_sol_preview','of_sol_input','odap_sol')">🗑️ 삭제</button></div></div>
+      <input type="file" id="of_sol_input" accept="image/*" multiple style="display:none" onchange="handleImg(event,'of_sol_preview','odap_sol')">
+    </div>
+    <div class="form-group"><label class="form-label">🧠 알아야할 공식 및 개념</label><textarea class="form-textarea" id="of_reason" placeholder="외워야 할 공식, 꼭 알아야 할 개념, 적용 포인트를 적어 주세요."></textarea></div>
+    <div class="form-group">
+      <label class="form-label">⭐ 난이도 / 중요도</label>
+      <div class="star-section">
+        <div class="star-group"><div class="star-group-label">난이도 ♥</div><div class="star-row" id="of_diff_stars">
+          <button class="star-btn" data-v="1" onclick="setStar('of_diff',1)">♥</button><button class="star-btn" data-v="2" onclick="setStar('of_diff',2)">♥</button><button class="star-btn" data-v="3" onclick="setStar('of_diff',3)">♥</button><button class="star-btn" data-v="4" onclick="setStar('of_diff',4)">♥</button><button class="star-btn" data-v="5" onclick="setStar('of_diff',5)">♥</button>
+        </div></div>
+        <div class="star-group"><div class="star-group-label">중요도 ★</div><div class="star-row" id="of_imp_stars">
+          <button class="star-btn" data-v="1" onclick="setStar('of_imp',1)">★</button><button class="star-btn" data-v="2" onclick="setStar('of_imp',2)">★</button><button class="star-btn" data-v="3" onclick="setStar('of_imp',3)">★</button><button class="star-btn" data-v="4" onclick="setStar('of_imp',4)">★</button><button class="star-btn" data-v="5" onclick="setStar('of_imp',5)">★</button>
+        </div></div>
+      </div>
+    </div>
+    <button class="btn-save" onclick="saveOdap()">💾 저장하기</button>
+  </div>
+</div>
+
+<div class="sheet" id="addSheetEkgi">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="top-actions"><button class="btn-back" onclick="closeAll()">← 이전</button><div class="sheet-title" id="sheetTitleEkgi">⭐ 핵심 액기스 추가</div></div>
+    <button class="btn-close" onclick="closeAll()">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">📌 과목 <span class="required">*</span></label><select class="form-select" id="ef_subject"></select></div>
+      <div class="form-group"><label class="form-label">📅 학년/학기 <span class="required">*</span></label><select class="form-select" id="ef_grade"></select></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">📚 출처 <span class="required">*</span></label>
+      <div class="radio-group" id="ef_src">
+        <div class="radio-opt" onclick="selRadio('ef_src',this,'학교 교과서','ekgi')">학교 교과서</div>
+        <div class="radio-opt" onclick="selRadio('ef_src',this,'학원 교재','ekgi')">학원 교재</div>
+        <div class="radio-opt" onclick="selRadio('ef_src',this,'개인 문제집','ekgi')">개인 문제집</div>
+        <div class="radio-opt" onclick="selRadio('ef_src',this,'기타','ekgi')">기타</div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">📐 관련 단원 <span class="required">*</span></label><input class="form-input" id="ef_unit" placeholder="예) 1-1. 이차 방정식, X-X(단원번호). OOOOO(단원 제목)"></div>
+    <div class="form-group">
+      <label class="form-label">📸 액기스 사진 <span class="required">*</span></label>
+      <div class="img-area"><div id="ef_img_preview" class="multi-preview"></div><div class="img-btns"><button class="btn-sm" onclick="document.getElementById('ef_img_input').click()">📷 사진 선택</button><button class="btn-sm" onclick="clearImg('ef_img_preview','ef_img_input','ekgi_img')">🗑️ 삭제</button></div></div>
+      <input type="file" id="ef_img_input" accept="image/*" multiple style="display:none" onchange="handleImg(event,'ef_img_preview','ekgi_img')">
+    </div>
+    <div class="form-group"><label class="form-label">🧠 추가 메모 (선택)</label><textarea class="form-textarea" id="ef_memo" placeholder="핵심 포인트, 외워야 할 내용"></textarea></div>
+    <button class="btn-save btn-save-ekgi" onclick="saveEkgi()">💾 저장하기</button>
+  </div>
+</div>
+
+<div class="sheet" id="detailSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="top-actions"><button class="btn-back" onclick="closeAll()">← 이전</button><div class="sheet-title" id="detailTitle">상세보기</div></div>
+    <button class="btn-close" onclick="closeAll()">✕</button>
+  </div>
+  <div class="sheet-body" id="detailBody"></div>
+</div>
+
+<div class="dialog-overlay" id="dialogOverlay" onclick="closeDialog()"></div>
+<div class="dialog" id="subjectDialog"><div class="dialog-box">
+  <div class="dialog-title">새 과목 추가 ✨</div>
+  <div class="form-group"><label class="form-label">과목 이름</label><input class="form-input" id="d_name" placeholder="예) 사회, 역사"></div>
+  <div class="form-label">이모지</div><div class="emoji-grid" id="emojiGrid"></div>
+  <div class="form-label">색상</div><div class="color-grid" id="colorGrid"></div>
+  <div class="dialog-btns"><button class="btn-cancel" onclick="closeDialog()">취소</button><button class="btn-confirm" onclick="confirmSubject()">추가</button></div>
+</div></div>
+
+<div id="printArea"></div>
+
+<script>
+const DB_NAME='StudyNoteDB_v7', DB_STORE='kv';
+const DEF_SUBJECTS=[{id:'s1',name:'수학',emoji:'📐',color:'#FF5252',isDefault:true},{id:'s2',name:'영어',emoji:'📖',color:'#2979FF',isDefault:true},{id:'s3',name:'과학',emoji:'🔬',color:'#00BFA5',isDefault:true}];
+const GRADES=['1학년 1학기','1학년 2학기','2학년 1학기','2학년 2학기','3학년 1학기','3학년 2학기'];
+const EMOJIS=['📝','🎯','🌍','🎨','🏃','💻','🎵','📚','🧪','🗺️','🖊️','🧠','📊','🔑','💡'];
+const COLORS=['#FF5252','#2979FF','#00BFA5','#FF6D00','#7C4DFF','#F50057','#00B0FF','#FF4081','#43A047','#FFD740'];
+let notes=[], ekgis=[], subjects=[];
+let mode='odap', viewMode='list', selSubject=null, editingId=null;
+let imgBufs={odap_prob:[], odap_sol:[], ekgi_img:[]}, starVals={of_diff:3,of_imp:3}, radioSels={};
+let selectedEmoji='📝', selectedColor='#FF6B9D', currentExamItem=null, examReveal=false;
+let filterCollapsed=false;
+
+function escapeJs(s){ return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function subjectInfo(name){ return subjects.find(s=>s.name===name)||{color:'#9C27B0',emoji:'📝'}; }
+
+function openDB(){ return new Promise((resolve,reject)=>{ const req=indexedDB.open(DB_NAME,1); req.onupgradeneeded=e=>{ const db=e.target.result; if(!db.objectStoreNames.contains(DB_STORE)) db.createObjectStore(DB_STORE,{keyPath:'key'}); }; req.onsuccess=()=>resolve(req.result); req.onerror=()=>reject(req.error); });}
+async function dbGet(key){ const db=await openDB(); return new Promise((resolve,reject)=>{ const tx=db.transaction(DB_STORE,'readonly'); const st=tx.objectStore(DB_STORE); const req=st.get(key); req.onsuccess=()=>resolve(req.result ? req.result.value : null); req.onerror=()=>reject(req.error); });}
+async function dbSet(key,value){ const db=await openDB(); return new Promise((resolve,reject)=>{ const tx=db.transaction(DB_STORE,'readwrite'); const st=tx.objectStore(DB_STORE); const req=st.put({key,value}); req.onsuccess=()=>resolve(true); req.onerror=()=>reject(req.error); });}
+async function persistAll(){ try{ await dbSet('notes',notes); await dbSet('ekgis',ekgis); await dbSet('subjects',subjects); if(googleAccessToken && location.protocol !== 'file:'){ setTimeout(()=>syncToDrive(false), 0); } return true; }catch(e){ try{ localStorage.setItem('notes_fallback',JSON.stringify(notes)); localStorage.setItem('ekgis_fallback',JSON.stringify(ekgis)); localStorage.setItem('subjects_fallback',JSON.stringify(subjects)); if(googleAccessToken && location.protocol !== 'file:'){ setTimeout(()=>syncToDrive(false), 0); } return true; }catch(err){ alert('저장에 실패했어요. 파일 앱 미리보기가 아닌 크롬/삼성 인터넷/엣지에서 다시 열어 주세요.'); return false; } } }
+async function loadAll(){ try{ notes=await dbGet('notes')||[]; ekgis=await dbGet('ekgis')||[]; subjects=await dbGet('subjects')||DEF_SUBJECTS.slice(); document.getElementById('storageNotice').textContent='저장은 IndexedDB로 동작 중이에요. 엣지에서도 저장되도록 개선했어요.'; }catch(e){ try{ notes=JSON.parse(localStorage.getItem('notes_fallback')||'[]'); ekgis=JSON.parse(localStorage.getItem('ekgis_fallback')||'[]'); subjects=JSON.parse(localStorage.getItem('subjects_fallback')||'null')||DEF_SUBJECTS.slice(); document.getElementById('storageNotice').textContent='IndexedDB 대신 브라우저 저장소로 동작 중이에요.'; }catch(err){ notes=[]; ekgis=[]; subjects=DEF_SUBJECTS.slice(); document.getElementById('storageNotice').textContent='이 브라우저 환경에서는 저장 제한이 있을 수 있어요. 반드시 브라우저 앱에서 열어 주세요.'; } } }
+function toggleFilterBox(){
+  filterCollapsed = !filterCollapsed;
+  const content = document.getElementById('filterContent');
+  const text = document.getElementById('filterToggleText');
+  if(!content || !text) return;
+  if(filterCollapsed){
+    content.classList.add('collapsed');
+    text.textContent = '펼치기 ▼';
+  } else {
+    content.classList.remove('collapsed');
+    text.textContent = '접기 ▲';
+  }
+}
+
+function switchMain(m){ mode=m; selSubject=null; document.getElementById('tabOdap').classList.toggle('active',m==='odap'); document.getElementById('tabEkgi').classList.toggle('active',m==='ekgi'); if(mode==='ekgi'&&viewMode!=='list') viewMode='list'; syncViewButtons(); toggleModeSpecificUI(); document.getElementById('searchInput').value=''; resetFilters(); render(); }
+function resetFilters(){ clearGradeChecks(); ['unitFilter','wrongFilter','difficultyFilter','importanceFilter'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; }); }
+function setView(v){ if(mode==='ekgi'&&v!=='list'){ alert('추천 복습과 시험 대비는 오답노트에서만 사용할 수 있어요.'); return; } viewMode=v; syncViewButtons(); render(); }
+function syncViewButtons(){
+  document.getElementById('viewListBtn').classList.toggle('active',viewMode==='list');
+  document.getElementById('viewRecommendBtn').classList.toggle('active',viewMode==='recommend');
+  document.getElementById('viewExamBtn').classList.toggle('active',viewMode==='exam');
+}
+function toggleModeSpecificUI(){
+  const recommendBtn=document.getElementById('viewRecommendBtn');
+  const examBtn=document.getElementById('viewExamBtn');
+  const wrongWrap=document.getElementById('wrongFilterWrap');
+  const diffWrap=document.getElementById('difficultyFilterWrap');
+  const impWrap=document.getElementById('importanceFilterWrap');
+
+  if(mode==='ekgi'){
+    if(recommendBtn) recommendBtn.classList.add('is-hidden');
+    if(examBtn) examBtn.classList.add('is-hidden');
+    if(wrongWrap) wrongWrap.classList.add('is-hidden');
+    if(diffWrap) diffWrap.classList.add('is-hidden');
+    if(impWrap) impWrap.classList.add('is-hidden');
+    const wf=document.getElementById('wrongFilter');
+    const df=document.getElementById('difficultyFilter');
+    const inf=document.getElementById('importanceFilter');
+    if(wf) wf.value='';
+    if(df) df.value='';
+    if(inf) inf.value='';
+  }else{
+    if(recommendBtn) recommendBtn.classList.remove('is-hidden');
+    if(examBtn) examBtn.classList.remove('is-hidden');
+    if(wrongWrap) wrongWrap.classList.remove('is-hidden');
+    if(diffWrap) diffWrap.classList.remove('is-hidden');
+    if(impWrap) impWrap.classList.remove('is-hidden');
+  }
+}
+function render(){ toggleModeSpecificUI(); renderChips(); renderGradeChecks(); renderUnitFilter(); renderMainView(); }
+function renderChips(){ const el=document.getElementById('subjectChips'); const activeColor=mode==='odap'?'var(--odap)':'var(--ekgi)'; let html=`<div class="chip ${!selSubject?'active':''}" style="${!selSubject?'background:'+activeColor+';color:#fff;border-color:'+activeColor:''}" onclick="filterSub(null)">전체</div>`; subjects.forEach(s=>{ const active=selSubject===s.name; html+=`<div class="chip ${active?'active':''}" style="${active?'background:'+s.color+';color:#fff;border-color:'+s.color:''}" onclick="filterSub('${escapeJs(s.name)}')">${s.emoji} ${esc(s.name)}</div>`; }); html+=`<div class="chip chip-add" onclick="openSubjectDialog()">＋ 추가</div>`; el.innerHTML=html; }
+function filterSub(name){ selSubject=name; ['unitFilter','wrongFilter','difficultyFilter','importanceFilter'].forEach(id=>document.getElementById(id).value=''); render(); }
+function renderGradeChecks(){ const box=document.getElementById('gradeChecks'); const selected=getSelectedGrades(); box.innerHTML=GRADES.map((g,i)=>`<label class="check-item"><input type="checkbox" id="gcheck_${i}" value="${g}" ${selected.includes(g)?'checked':''} onchange="onGradeChange()">${g}</label>`).join(''); }
+function getSelectedGrades(){ return [...document.querySelectorAll('#gradeChecks input[type="checkbox"]')].filter(i=>i.checked).map(i=>i.value); }
+function clearGradeChecks(){ [...document.querySelectorAll('#gradeChecks input[type="checkbox"]')].forEach(i=>i.checked=false); }
+function onGradeChange(){ renderUnitFilter(); renderMainView(); }
+function getCurrentList(){ return mode==='odap'?[...notes]:[...ekgis]; }
+function getFilteredBase(){
+  let list=getCurrentList();
+  if(selSubject) list=list.filter(n=>n.subject===selSubject);
+  const grades=getSelectedGrades();
+  if(grades.length) list=list.filter(n=>grades.includes(n.grade));
+  const unitFilter=document.getElementById('unitFilter').value;
+  const wrongFilter=document.getElementById('wrongFilter').value;
+  const difficultyFilter=document.getElementById('difficultyFilter').value;
+  const importanceFilter=document.getElementById('importanceFilter').value;
+  if(unitFilter) list=list.filter(n=>n.unit===unitFilter);
+  if(mode==='odap'){
+    if(wrongFilter) list=list.filter(n=>n.wrongCount===wrongFilter);
+    if(difficultyFilter) list=list.filter(n=>String(n.difficulty||'')===difficultyFilter);
+    if(importanceFilter) list=list.filter(n=>String(n.importance||'')===importanceFilter);
+  }
+  return list;
+}
+function renderUnitFilter(){ const select=document.getElementById('unitFilter'); const old=select.value; const units=[...new Set((selSubject||getSelectedGrades().length||document.getElementById('searchInput').value||document.getElementById('wrongFilter').value||document.getElementById('difficultyFilter').value||document.getElementById('importanceFilter').value ? getCurrentList().filter(n=>{ if(selSubject&&n.subject!==selSubject) return false; const grades=getSelectedGrades(); if(grades.length&&!grades.includes(n.grade)) return false; if(mode==='odap'){ if(document.getElementById('wrongFilter').value&&n.wrongCount!==document.getElementById('wrongFilter').value) return false; if(document.getElementById('difficultyFilter').value&&String(n.difficulty||'')!==document.getElementById('difficultyFilter').value) return false; if(document.getElementById('importanceFilter').value&&String(n.importance||'')!==document.getElementById('importanceFilter').value) return false; } return true; }) : getCurrentList()).map(n=>n.unit).filter(Boolean))].sort(); select.innerHTML=`<option value="">전체 단원</option>`+units.map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join(''); if(units.includes(old)) select.value=old; }
+function getFullyFilteredList(){ const q=(document.getElementById('searchInput').value||'').trim().toLowerCase(); let list=getFilteredBase(); if(q){ list=list.filter(n=>String(n.unit||'').toLowerCase().includes(q)||String(n.subject||'').toLowerCase().includes(q)||String(n.src1||'').toLowerCase().includes(q)||String(n.src2||'').toLowerCase().includes(q)||String(n.src||'').toLowerCase().includes(q)||String(n.memo||'').toLowerCase().includes(q)||String(n.reason||'').toLowerCase().includes(q)); } return list.sort((a,b)=>b.createdAt-a.createdAt); }
+function renderMainView(){ const box=document.getElementById('mainView'); if(viewMode==='list'){ box.innerHTML=renderListHtml(); return; } if(viewMode==='recommend'){ box.innerHTML=renderRecommendHtml(); return; } if(viewMode==='exam'){ box.innerHTML=renderExamHtml(); return; } }
+function metricText(label,symbol,count,color,emptySymbol){ return `<span><span class="metric-label">${label}</span><span style="color:${color}">${symbol.repeat(count)}${emptySymbol.repeat(5-count)}</span></span>`; }
+function renderListHtml(){
+  const list=getFullyFilteredList();
+  if(!list.length) return `<div class="empty"><div class="icon">${mode==='odap'?'📭':'⭐'}</div><p>조건에 맞는 항목이 없어요.</p></div>`;
+  if(mode==='odap'){
+    return list.map(n=>{
+      const si=subjectInfo(n.subject), wCol=n.wrongCount==='3회 이상'?'#FF1744':n.wrongCount==='2회'?'#FF6D00':'#4CAF50';
+      const date=new Date(n.createdAt).toLocaleDateString('ko-KR',{month:'short',day:'numeric'});
+      return `<div class="note-card" onclick="openDetail('${n.id}','odap')">
+        <div class="card-accent" style="background:${si.color}"></div>
+        <div class="card-body">
+          <div class="card-row"><span class="card-subject-badge" style="background:${si.color}22;color:${si.color}">${si.emoji} ${esc(n.subject)}</span><span class="card-grade">${esc(n.grade||'')}</span></div>
+          <div class="card-title">${esc(n.unit||'단원 미입력')}</div>
+          <div class="card-meta">
+            <span class="meta-tag">📚 ${esc(n.src1||'-')}</span>
+            ${n.src2?`<span class="meta-tag">📝 ${esc(n.src2)}</span>`:''}
+            <span class="meta-tag" style="color:${wCol}">❌ ${esc(n.wrongCount||'1회')}</span>
+            ${n.reason?`<span class="meta-tag">🧠 ${esc(n.reason.length>18?n.reason.slice(0,18)+'...':n.reason)}</span>`:''}
+          </div>
+          <div class="card-row">
+            <div class="metric-line">
+              ${metricText('난이도','♥',n.difficulty||3,'#FF6B9D','♡')}
+              ${metricText('중요도','★',n.importance||3,'#FFC107','☆')}
+            </div>
+            <span class="card-date">${date}</span>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  return list.map(n=>{ const si=subjectInfo(n.subject), date=new Date(n.createdAt).toLocaleDateString('ko-KR',{month:'short',day:'numeric'}); return `<div class="note-card ekgi-card" onclick="openDetail('${n.id}','ekgi')"><div class="card-body"><div class="card-row"><span class="card-subject-badge" style="background:${si.color}22;color:${si.color}">${si.emoji} ${esc(n.subject)}</span><span class="card-grade">${esc(n.grade||'')}</span></div><div class="card-title">⭐ ${esc(n.unit||'단원 미입력')}</div><div class="card-meta"><span class="meta-tag">📚 ${esc(n.src||'-')}</span></div><div class="card-row">${n.memo?`<span style="font-size:12px;color:var(--muted)">${esc((n.memo||'').substring(0,24))}${(n.memo||'').length>24?'...':''}</span>`:'<span></span>'}<span class="card-date">${date}</span></div></div></div>`; }).join('');
+}
+function renderRecommendHtml(){
+  if(mode!=='odap') return `<div class="empty"><div class="icon">⭐</div><p>추천 복습은 오답노트에서만 사용할 수 있어요.</p></div>`;
+  const list=getFullyFilteredList();
+  if(!list.length) return `<div class="empty"><div class="icon">⭐</div><p>추천할 오답노트가 없어요.</p></div>`;
+  const ranked=list.map(n=>{ const wrongScore=n.wrongCount==='3회 이상'?3:n.wrongCount==='2회'?2:1; const total=((n.importance||0)*10)+((n.difficulty||0)*5)+(wrongScore*8); return {n,total}; }).sort((a,b)=>b.total-a.total);
+  return ranked.map((row,idx)=>{ const n=row.n, si=subjectInfo(n.subject); return `<div class="recommend-card" onclick="openDetail('${n.id}','odap')"><div class="recommend-rank">추천 ${idx+1}</div><div class="card-title" style="margin-bottom:8px">${si.emoji} ${esc(n.subject)} · ${esc(n.unit)}</div><div class="card-meta"><span class="meta-tag">📅 ${esc(n.grade)}</span><span class="meta-tag">중요도 ${n.importance||0}</span><span class="meta-tag">난이도 ${n.difficulty||0}</span><span class="meta-tag">❌ ${esc(n.wrongCount)}</span></div>${n.reason?`<div class="detail-value dv-reason" style="margin-top:6px">${esc(n.reason)}</div>`:''}</div>`; }).join('');
+}
+function renderExamHtml(){
+  if(mode!=='odap') return `<div class="empty"><div class="icon">🎯</div><p>시험 대비는 오답노트에서만 사용할 수 있어요.</p></div>`;
+  const list=getFullyFilteredList();
+  if(!list.length) return `<div class="empty"><div class="icon">🎯</div><p>랜덤 복습할 오답노트가 없어요.</p></div>`;
+  return list.map((n,idx)=>{ const si=subjectInfo(n.subject); return `<div class="note-card" onclick="openExamProblem('${n.id}')"><div class="card-accent" style="background:${si.color}"></div><div class="card-body"><div class="card-row"><span class="card-subject-badge" style="background:${si.color}22;color:${si.color}">${si.emoji} ${esc(n.subject)}</span><span class="card-grade">${esc(n.grade||'')}</span></div><div class="card-title">${idx+1}. ${esc(n.unit||'단원 미입력')}</div><div class="card-meta"><span class="meta-tag">📚 ${esc(n.src1||'-')}</span><span class="meta-tag">❌ ${esc(n.wrongCount||'1회')}</span></div></div></div>`; }).join('');
+}
+function openExamProblem(id){
+  currentExamItem = notes.find(n=>n.id===id) || null;
+  examReveal = false;
+  if(!currentExamItem) return;
+  document.getElementById('detailTitle').innerHTML='🎯 시험 대비 문제';
+  const n=currentExamItem;
+  document.getElementById('detailBody').innerHTML=`<div class="detail-section"><div class="detail-label">과목 / 학년-학기</div><div class="detail-value">${esc(n.subject)} · ${esc(n.grade)}</div></div><div class="detail-section"><div class="detail-label">관련 단원</div><div class="detail-value">${esc(n.unit)}</div></div>${imageHtmlBlock(n.probImg,'문제 사진')}<div class="exam-actions"><button class="btn-main" onclick="revealExamProblem()">풀이 보기</button><button class="btn-secondary" onclick="openRandomExamProblem()">랜덤 문제</button></div><div id="examRevealBox"></div>`;
+  showSheet('detailSheet');
+}
+function revealExamProblem(){
+  if(!currentExamItem) return;
+  const n=currentExamItem;
+  document.getElementById('examRevealBox').innerHTML=`${imageHtmlBlock(n.solImg,'정답 및 문제풀이(사진)')}${n.reason?`<div class="detail-section"><div class="detail-label">🧠 알아야할 공식 및 개념</div><div class="detail-value dv-reason">${esc(n.reason)}</div></div>`:''}`;
+}
+function openRandomExamProblem(){
+  const list=getFullyFilteredList();
+  if(!list.length) return;
+  const n=list[Math.floor(Math.random()*list.length)];
+  openExamProblem(n.id);
+}
+function selRadio(groupId,el,val,theme){ document.querySelectorAll('#'+groupId+' .radio-opt').forEach(x=>x.classList.remove('sel','sel-ekgi')); el.classList.add(theme==='ekgi'?'sel-ekgi':'sel'); radioSels[groupId]=val; }
+function getRadio(groupId){ return radioSels[groupId]||null; }
+function setStar(key,v){ starVals[key]=v; const prefix=key==='of_diff'?'of_diff':'of_imp'; document.querySelectorAll('#'+prefix+'_stars .star-btn').forEach(btn=>btn.classList.toggle('active', parseInt(btn.dataset.v,10)<=v)); }
+function initStars(){ setStar('of_diff',3); setStar('of_imp',3); }
+function normalizeImages(value){
+  if(!value) return [];
+  return Array.isArray(value) ? value : [value];
+}
+function renderPreview(previewId, slot){
+  const box=document.getElementById(previewId);
+  const images=normalizeImages(imgBufs[slot]);
+  if(!images.length){
+    box.innerHTML='';
+    box.style.display='none';
+    return;
+  }
+  box.innerHTML=images.map((src, idx)=>`<div style="position:relative">
+    <img src="${src}" class="img-preview" style="margin-bottom:0">
+    <button type="button" onclick="removeImg('${slot}', ${idx}, '${previewId}')" style="position:absolute;top:4px;right:4px;width:24px;height:24px;border:none;border-radius:50%;background:#ff5a7a;color:#fff;font-weight:800;cursor:pointer">×</button>
+  </div>`).join('');
+  box.style.display='flex';
+}
+function handleImg(e, previewId, slot){
+  const files=[...(e.target.files||[])];
+  if(!files.length) return;
+  const current=normalizeImages(imgBufs[slot]);
+  let remaining=files.length;
+  files.forEach(file=>{
+    if(file.size>8*1024*1024){
+      remaining -= 1;
+      if(remaining===0){
+        imgBufs[slot]=current;
+        renderPreview(previewId, slot);
+      }
+      return;
+    }
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      current.push(ev.target.result);
+      remaining -= 1;
+      if(remaining===0){
+        imgBufs[slot]=current;
+        renderPreview(previewId, slot);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function removeImg(slot, idx, previewId){
+  const images=normalizeImages(imgBufs[slot]);
+  images.splice(idx,1);
+  imgBufs[slot]=images;
+  renderPreview(previewId, slot);
+}
+function clearImg(previewId,inputId,slot){
+  imgBufs[slot]=[];
+  const box=document.getElementById(previewId);
+  box.innerHTML='';
+  box.style.display='none';
+  document.getElementById(inputId).value='';
+}
+function populateSubjectSelects(){ ['of_subject','ef_subject'].forEach(id=>{ document.getElementById(id).innerHTML=subjects.map(s=>`<option value="${esc(s.name)}">${s.emoji} ${esc(s.name)}</option>`).join(''); }); }
+function populateGradeSelects(){ ['of_grade','ef_grade'].forEach(id=>{ document.getElementById(id).innerHTML='<option value="">선택</option>'+GRADES.map(g=>`<option value="${g}">${g}</option>`).join(''); }); }
+function openAdd(){ editingId=null; populateSubjectSelects(); populateGradeSelects(); if(mode==='odap'){ resetOdapForm(); document.getElementById('sheetTitleOdap').textContent='📝 오답 추가'; showSheet('addSheetOdap'); } else { resetEkgiForm(); document.getElementById('sheetTitleEkgi').textContent='⭐ 핵심 액기스 추가'; showSheet('addSheetEkgi'); } }
+function resetOdapForm(){ ['of_grade','of_src2','of_unit','of_reason'].forEach(id=>document.getElementById(id).value=''); ['of_img_preview','of_sol_preview'].forEach(id=>{ document.getElementById(id).style.display='none'; document.getElementById(id).innerHTML=''; }); ['of_img_input','of_sol_input'].forEach(id=>document.getElementById(id).value=''); imgBufs['odap_prob']=[]; imgBufs['odap_sol']=[]; ['of_src1','of_wrong'].forEach(g=>{ document.querySelectorAll('#'+g+' .radio-opt').forEach(x=>x.classList.remove('sel','sel-ekgi')); radioSels[g]=null; }); initStars(); }
+function resetEkgiForm(){ ['ef_grade','ef_unit','ef_memo'].forEach(id=>document.getElementById(id).value=''); document.getElementById('ef_img_preview').style.display='none'; document.getElementById('ef_img_preview').src=''; document.getElementById('ef_img_input').value=''; imgBufs['ekgi_img']=null; document.querySelectorAll('#ef_src .radio-opt').forEach(x=>x.classList.remove('sel','sel-ekgi')); radioSels['ef_src']=null; }
+async function saveOdap(){ const note={ id:editingId||('o'+Date.now()), subject:document.getElementById('of_subject').value, grade:document.getElementById('of_grade').value, src1:getRadio('of_src1'), src2:document.getElementById('of_src2').value.trim(), unit:document.getElementById('of_unit').value.trim(), wrongCount:getRadio('of_wrong'), reason:document.getElementById('of_reason').value.trim(), difficulty:starVals['of_diff'], importance:starVals['of_imp'], probImg:imgBufs['odap_prob'], solImg:imgBufs['odap_sol'], createdAt:editingId?((notes.find(n=>n.id===editingId)||{}).createdAt||Date.now()):Date.now() }; if(!note.subject||!note.grade||!note.src1||!note.unit||!note.wrongCount||!normalizeImages(note.probImg).length||!normalizeImages(note.solImg).length){ alert('필수 항목을 모두 입력해주세요.'); return; } if(editingId){ const idx=notes.findIndex(n=>n.id===editingId); if(idx>=0) notes[idx]=note; } else notes.unshift(note); if(await persistAll()){ closeAll(); render(); alert('오답노트가 저장되었어요.'); } }
+async function saveEkgi(){ const item={ id:editingId||('e'+Date.now()), subject:document.getElementById('ef_subject').value, grade:document.getElementById('ef_grade').value, src:getRadio('ef_src'), unit:document.getElementById('ef_unit').value.trim(), memo:document.getElementById('ef_memo').value.trim(), img:imgBufs['ekgi_img'], createdAt:editingId?((ekgis.find(n=>n.id===editingId)||{}).createdAt||Date.now()):Date.now() }; if(!item.subject||!item.grade||!item.src||!item.unit||!normalizeImages(item.img).length){ alert('필수 항목을 모두 입력해주세요.'); return; } if(editingId){ const idx=ekgis.findIndex(n=>n.id===editingId); if(idx>=0) ekgis[idx]=item; } else ekgis.unshift(item); if(await persistAll()){ closeAll(); render(); alert('핵심 액기스가 저장되었어요.'); } }
+function imageHtmlBlock(images, label){
+  const arr=normalizeImages(images);
+  if(!arr.length) return '';
+  return `<div class="detail-label">📸 ${label}</div>` + arr.map(src=>`<img src="${src}" class="detail-img">`).join('');
+}
+function openDetail(id,type){ if(type==='odap'){ const n=notes.find(x=>x.id===id); if(!n) return; const si=subjectInfo(n.subject), wCol=n.wrongCount==='3회 이상'?'#FF1744':n.wrongCount==='2회'?'#FF6D00':'#4CAF50'; document.getElementById('detailTitle').innerHTML=`<span style="color:${si.color}">${si.emoji} ${esc(n.subject)}</span>`; document.getElementById('detailBody').innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"><span class="meta-tag" style="background:${si.color}22;color:${si.color};font-weight:800">${si.emoji} ${esc(n.subject)}</span><span class="meta-tag">📅 ${esc(n.grade)}</span><span class="meta-tag">📚 ${esc(n.src1)}</span>${n.src2?`<span class="meta-tag">📝 ${esc(n.src2)}</span>`:''}<span class="meta-tag" style="color:${wCol};font-weight:800">❌ ${esc(n.wrongCount)}</span></div><div class="detail-section"><div class="detail-label">관련 단원</div><div class="detail-value" style="font-weight:800;font-size:16px">${esc(n.unit)}</div></div>${imageHtmlBlock(n.probImg,'문제 사진')}${imageHtmlBlock(n.solImg,'정답 및 문제풀이(사진)')}${n.reason?`<div class="detail-section"><div class="detail-label">🧠 알아야할 공식 및 개념</div><div class="detail-value dv-reason">${esc(n.reason)}</div></div>`:''}<div style="display:flex;justify-content:space-between;margin-bottom:14px"><div><div class="detail-label">난이도</div><div style="color:#FF6B9D;font-size:20px">${'♥'.repeat(n.difficulty)}${'♡'.repeat(5-n.difficulty)}</div></div><div><div class="detail-label">중요도</div><div style="color:#FFC107;font-size:20px">${'★'.repeat(n.importance)}${'☆'.repeat(5-n.importance)}</div></div></div><div class="detail-actions"><button class="btn-act ba-edit" onclick="editOdap('${n.id}')">✏️ 수정</button><button class="btn-act ba-print" onclick="printOdap('${n.id}')">🖨️ 인쇄</button></div><button class="btn-act ba-del" style="width:100%;margin-top:8px" onclick="delNote('${n.id}','odap')">🗑️ 삭제</button>`; } else { const n=ekgis.find(x=>x.id===id); if(!n) return; const si=subjectInfo(n.subject); document.getElementById('detailTitle').innerHTML=`⭐ <span style="color:${si.color}">${si.emoji} ${esc(n.subject)}</span>`; document.getElementById('detailBody').innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"><span class="meta-tag" style="background:${si.color}22;color:${si.color};font-weight:800">${si.emoji} ${esc(n.subject)}</span><span class="meta-tag">📅 ${esc(n.grade)}</span><span class="meta-tag">📚 ${esc(n.src)}</span></div><div class="detail-section"><div class="detail-label">관련 단원</div><div class="detail-value" style="font-weight:800;font-size:16px">${esc(n.unit)}</div></div>${imageHtmlBlock(n.img,'액기스 사진')}${n.memo?`<div class="detail-section"><div class="detail-label">🧠 추가 메모</div><div class="detail-value dv-reason">${esc(n.memo)}</div></div>`:''}<div class="detail-actions"><button class="btn-act ba-edit" onclick="editEkgi('${n.id}')">✏️ 수정</button><button class="btn-act ba-print" onclick="printEkgi('${n.id}')">🖨️ 인쇄</button></div><button class="btn-act ba-del" style="width:100%;margin-top:8px" onclick="delNote('${n.id}','ekgi')">🗑️ 삭제</button>`; } showSheet('detailSheet'); }
+function editOdap(id){ const n=notes.find(x=>x.id===id); if(!n) return; editingId=id; populateSubjectSelects(); populateGradeSelects(); document.getElementById('of_subject').value=n.subject; document.getElementById('of_grade').value=n.grade; document.getElementById('of_src2').value=n.src2||''; document.getElementById('of_unit').value=n.unit||''; document.getElementById('of_reason').value=n.reason||''; ['of_src1','of_wrong'].forEach(g=>{ document.querySelectorAll('#'+g+' .radio-opt').forEach(x=>x.classList.remove('sel','sel-ekgi')); radioSels[g]=null; }); document.querySelectorAll('#of_src1 .radio-opt').forEach(x=>{ if(x.textContent===n.src1){ x.classList.add('sel'); radioSels['of_src1']=n.src1; }}); document.querySelectorAll('#of_wrong .radio-opt').forEach(x=>{ if(x.textContent===n.wrongCount){ x.classList.add('sel'); radioSels['of_wrong']=n.wrongCount; }}); imgBufs['odap_prob']=normalizeImages(n.probImg); imgBufs['odap_sol']=normalizeImages(n.solImg); renderPreview('of_img_preview','odap_prob'); renderPreview('of_sol_preview','odap_sol'); setStar('of_diff',n.difficulty||3); setStar('of_imp',n.importance||3); document.getElementById('sheetTitleOdap').textContent='📝 오답 수정'; closeAll(); setTimeout(()=>showSheet('addSheetOdap'),60); }
+function editEkgi(id){ const n=ekgis.find(x=>x.id===id); if(!n) return; editingId=id; populateSubjectSelects(); populateGradeSelects(); document.getElementById('ef_subject').value=n.subject; document.getElementById('ef_grade').value=n.grade; document.getElementById('ef_unit').value=n.unit||''; document.getElementById('ef_memo').value=n.memo||''; document.querySelectorAll('#ef_src .radio-opt').forEach(x=>{ x.classList.remove('sel','sel-ekgi'); if(x.textContent===n.src){ x.classList.add('sel-ekgi'); radioSels['ef_src']=n.src; }}); imgBufs['ekgi_img']=normalizeImages(n.img); renderPreview('ef_img_preview','ekgi_img'); document.getElementById('sheetTitleEkgi').textContent='⭐ 핵심 액기스 수정'; closeAll(); setTimeout(()=>showSheet('addSheetEkgi'),60); }
+async function delNote(id,type){ if(!confirm('삭제할까요?')) return; if(type==='odap') notes=notes.filter(n=>n.id!==id); else ekgis=ekgis.filter(n=>n.id!==id); if(await persistAll()){ closeAll(); render(); } }
+function printOdap(id){ const n=notes.find(x=>x.id===id); if(!n) return; const si=subjectInfo(n.subject), date=new Date(n.createdAt).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'}); document.getElementById('printArea').innerHTML=`<div style="font-family:'Nanum Gothic',sans-serif;max-width:680px;margin:0 auto;padding:28px;color:#333"><div style="text-align:center;margin-bottom:20px"><div style="font-size:22px;font-weight:800;color:${si.color}">♡이서현♡의 공부 필살 노트!</div><div style="font-size:13px;color:#888;margin-top:4px">📝 오답노트 | ${date}</div></div><table style="width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px"><tr><td style="padding:7px 12px;background:#f5f5f5;font-weight:700;width:90px;border:1px solid #ddd">과목</td><td style="padding:7px 12px;border:1px solid #ddd">${si.emoji} ${esc(n.subject)}</td><td style="padding:7px 12px;background:#f5f5f5;font-weight:700;width:90px;border:1px solid #ddd">학년/학기</td><td style="padding:7px 12px;border:1px solid #ddd">${esc(n.grade)}</td></tr><tr><td style="padding:7px 12px;background:#f5f5f5;font-weight:700;border:1px solid #ddd">출처</td><td style="padding:7px 12px;border:1px solid #ddd" colspan="3">${esc(n.src1)}${n.src2?' / '+esc(n.src2):''}</td></tr><tr><td style="padding:7px 12px;background:#f5f5f5;font-weight:700;border:1px solid #ddd">관련 단원</td><td style="padding:7px 12px;border:1px solid #ddd" colspan="3"><b>${esc(n.unit)}</b></td></tr><tr><td style="padding:7px 12px;background:#f5f5f5;font-weight:700;border:1px solid #ddd">틀린 횟수</td><td style="padding:7px 12px;border:1px solid #ddd">${esc(n.wrongCount)}</td><td style="padding:7px 12px;background:#f5f5f5;font-weight:700;border:1px solid #ddd">난이도/중요도</td><td style="padding:7px 12px;border:1px solid #ddd">♥${n.difficulty} / ★${n.importance}</td></tr></table>${normalizeImages(n.probImg).length ? `<div style="margin-bottom:14px"><b style="font-size:13px">📸 문제 사진</b><br>` + normalizeImages(n.probImg).map(src=>`<img src="${src}" style="max-width:100%;margin-top:8px;border-radius:8px;border:1px solid #eee">`).join('') + `</div>` : ''}${normalizeImages(n.solImg).length ? `<div style="margin-bottom:14px"><b style="font-size:13px">💡 정답 및 문제풀이(사진)</b><br>` + normalizeImages(n.solImg).map(src=>`<img src="${src}" style="max-width:100%;margin-top:8px;border-radius:8px;border:1px solid #eee">`).join('') + `</div>` : ''}${n.reason?`<div style="background:#FFF8E1;padding:13px;border-radius:10px;margin-bottom:14px"><b style="color:#E65100">🧠 알아야할 공식 및 개념</b><br><div style="margin-top:5px">${esc(n.reason)}</div></div>`:''}</div>`; window.print(); }
+function printEkgi(id){ const n=ekgis.find(x=>x.id===id); if(!n) return; const si=subjectInfo(n.subject), date=new Date(n.createdAt).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'}); document.getElementById('printArea').innerHTML=`<div style="font-family:'Nanum Gothic',sans-serif;max-width:680px;margin:0 auto;padding:28px;color:#333"><div style="text-align:center;margin-bottom:20px"><div style="font-size:22px;font-weight:800;color:${si.color}">♡이서현♡의 공부 필살 노트!</div><div style="font-size:13px;color:#888;margin-top:4px">⭐ 핵심 액기스 | ${date}</div></div><table style="width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px"><tr><td style="padding:7px 12px;background:#f5f5f5;font-weight:700;width:90px;border:1px solid #ddd">과목</td><td style="padding:7px 12px;border:1px solid #ddd">${si.emoji} ${esc(n.subject)}</td><td style="padding:7px 12px;background:#f5f5f5;font-weight:700;width:90px;border:1px solid #ddd">학년/학기</td><td style="padding:7px 12px;border:1px solid #ddd">${esc(n.grade)}</td></tr><tr><td style="padding:7px 12px;background:#f5f5f5;font-weight:700;border:1px solid #ddd">출처</td><td style="padding:7px 12px;border:1px solid #ddd" colspan="3">${esc(n.src)}</td></tr><tr><td style="padding:7px 12px;background:#f5f5f5;font-weight:700;border:1px solid #ddd">관련 단원</td><td style="padding:7px 12px;border:1px solid #ddd" colspan="3"><b>${esc(n.unit)}</b></td></tr></table>${normalizeImages(n.img).length ? `<div style="margin-bottom:14px"><b style="font-size:13px">📸 핵심 액기스</b><br>` + normalizeImages(n.img).map(src=>`<img src="${src}" style="max-width:100%;margin-top:8px;border-radius:8px;border:1px solid #eee">`).join('') + `</div>` : ''}${n.memo?`<div style="background:#EDE7F6;padding:13px;border-radius:10px"><b style="color:#5E35B1">🧠 추가 메모</b><br><div style="margin-top:5px">${esc(n.memo)}</div></div>`:''}</div>`; window.print(); }
+function showSheet(id){ document.getElementById('overlay').classList.add('show'); document.getElementById(id).classList.add('show'); }
+function closeAll(){ document.getElementById('overlay').classList.remove('show'); document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('show')); }
+function openSubjectDialog(){ buildSubjectDialog(); document.getElementById('dialogOverlay').classList.add('show'); document.getElementById('subjectDialog').classList.add('show'); }
+function closeDialog(){ document.getElementById('dialogOverlay').classList.remove('show'); document.getElementById('subjectDialog').classList.remove('show'); }
+function buildSubjectDialog(){ document.getElementById('emojiGrid').innerHTML=EMOJIS.map(e=>`<div class="emoji-opt ${e===selectedEmoji?'sel':''}" onclick="pickEmoji('${e}')">${e}</div>`).join(''); document.getElementById('colorGrid').innerHTML=COLORS.map(c=>`<div class="color-dot ${c===selectedColor?'sel':''}" style="background:${c}" onclick="pickColor('${c}')"></div>`).join(''); }
+function pickEmoji(e){ selectedEmoji=e; buildSubjectDialog(); }
+function pickColor(c){ selectedColor=c; buildSubjectDialog(); }
+async function confirmSubject(){ const name=document.getElementById('d_name').value.trim(); if(!name){ alert('과목 이름을 입력해주세요.'); return; } if(subjects.some(s=>s.name===name)){ alert('이미 있는 과목입니다.'); return; } subjects.push({id:'s'+Date.now(),name,emoji:selectedEmoji,color:selectedColor}); if(await persistAll()){ document.getElementById('d_name').value=''; selectedEmoji='📝'; selectedColor='#FF6B9D'; closeDialog(); populateSubjectSelects(); render(); } }
+
+function makeBackupPayload(){
+  return {
+    app: 'study_note_app',
+    version: 17,
+    exportedAt: new Date().toISOString(),
+    notes,
+    ekgis,
+    subjects
+  };
+}
+function exportBackup(){
+  try{
+    const payload = makeBackupPayload();
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date();
+    const y = stamp.getFullYear();
+    const m = String(stamp.getMonth()+1).padStart(2,'0');
+    const d = String(stamp.getDate()).padStart(2,'0');
+    a.href = url;
+    a.download = `study_note_backup_${y}${m}${d}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1500);
+  }catch(e){
+    alert('백업 파일 생성에 실패했어요.');
+  }
+}
+async function importBackup(event){
+  const file = event.target.files && event.target.files[0];
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+
+    if(!parsed || parsed.app !== 'study_note_app'){
+      alert('올바른 백업 파일이 아니에요.');
+      event.target.value = '';
+      return;
+    }
+
+    const newNotes = Array.isArray(parsed.notes) ? parsed.notes : [];
+    const newEkgis = Array.isArray(parsed.ekgis) ? parsed.ekgis : [];
+    const newSubjects = Array.isArray(parsed.subjects) && parsed.subjects.length ? parsed.subjects : DEF_SUBJECTS.slice();
+
+    const ok = confirm('현재 기기의 데이터를 백업 파일 내용으로 바꿀까요?');
+    if(!ok){
+      event.target.value = '';
+      return;
+    }
+
+    notes = newNotes;
+    ekgis = newEkgis;
+    subjects = newSubjects;
+
+    const saved = await persistAll();
+    if(saved){
+      resetFilters();
+      populateSubjectSelects();
+      populateGradeSelects();
+      closeAll();
+      render();
+      alert('데이터를 불러왔어요.');
+    }
+  }catch(e){
+    alert('백업 파일을 읽는 중 오류가 발생했어요.');
+  }finally{
+    event.target.value = '';
+  }
+}
+
+
+
+const GOOGLE_SYNC_CONFIG = {
+  CLIENT_ID: '여기에_구글_OAuth_클라이언트_ID_입력',
+  SYNC_FILE_NAME: 'study_note_sync.json',
+  DRIVE_SCOPE: 'https://www.googleapis.com/auth/drive.file'
+};
+let googleTokenClient = null;
+let googleAccessToken = null;
+let googleSyncFileId = null;
+
+function setSyncStatus(text){
+  const el = document.getElementById('syncStatus');
+  if(el) el.textContent = text;
+}
+function makeSyncPayload(){
+  return {
+    app: 'study_note_app',
+    version: 18,
+    syncedAt: new Date().toISOString(),
+    notes,
+    ekgis,
+    subjects
+  };
+}
+function googleSyncReady(){
+  return !!(window.google && google.accounts && google.accounts.oauth2);
+}
+function hasGoogleClientId(){
+  return GOOGLE_SYNC_CONFIG.CLIENT_ID && !GOOGLE_SYNC_CONFIG.CLIENT_ID.includes('여기에_구글_OAuth_클라이언트_ID_입력');
+}
+async function signInGoogleDrive(){
+  if(location.protocol === 'file:'){
+    alert('구글 드라이브 자동 동기화는 file://로 연 HTML에서는 동작하지 않아요. 이 파일을 HTTPS 주소(예: GitHub Pages, Netlify)로 올린 뒤 사용해야 해요.');
+    return;
+  }
+  if(!hasGoogleClientId()){
+    alert('먼저 HTML 안의 GOOGLE_SYNC_CONFIG.CLIENT_ID 자리에 구글 OAuth 클라이언트 ID를 넣어야 해요.');
+    return;
+  }
+  if(!googleSyncReady()){
+    alert('구글 인증 라이브러리를 아직 불러오는 중이에요. 잠시 후 다시 눌러 주세요.');
+    return;
+  }
+  if(!googleTokenClient){
+    googleTokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_SYNC_CONFIG.CLIENT_ID,
+      scope: GOOGLE_SYNC_CONFIG.DRIVE_SCOPE,
+      callback: async (resp) => {
+        if(resp && resp.access_token){
+          googleAccessToken = resp.access_token;
+          setSyncStatus('구글 드라이브 연결됨');
+          await findSyncFile();
+        }
+      }
+    });
+  }
+  googleTokenClient.requestAccessToken({prompt: googleAccessToken ? '' : 'consent'});
+}
+async function googleApi(url, options={}){
+  if(!googleAccessToken){
+    throw new Error('NO_TOKEN');
+  }
+  const headers = Object.assign({}, options.headers || {}, {
+    Authorization: 'Bearer ' + googleAccessToken
+  });
+  const resp = await fetch(url, Object.assign({}, options, {headers}));
+  if(!resp.ok){
+    const text = await resp.text();
+    throw new Error(text || ('HTTP ' + resp.status));
+  }
+  return resp;
+}
+async function findSyncFile(){
+  const q = encodeURIComponent("name='" + GOOGLE_SYNC_CONFIG.SYNC_FILE_NAME + "' and trashed=false");
+  const url = 'https://www.googleapis.com/drive/v3/files?q=' + q + '&spaces=drive&fields=files(id,name,modifiedTime)';
+  const resp = await googleApi(url);
+  const data = await resp.json();
+  if(data.files && data.files.length){
+    googleSyncFileId = data.files[0].id;
+    setSyncStatus('동기화 파일 연결됨');
+  }else{
+    googleSyncFileId = null;
+    setSyncStatus('동기화 파일 없음 - 첫 저장 시 생성됨');
+  }
+}
+async function uploadSyncPayload(payloadObj){
+  const boundary = '-------314159265358979323846';
+  const metadata = {
+    name: GOOGLE_SYNC_CONFIG.SYNC_FILE_NAME,
+    mimeType: 'application/json'
+  };
+  const body =
+    '--' + boundary + '\r\n' +
+    'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+    JSON.stringify(metadata) + '\r\n' +
+    '--' + boundary + '\r\n' +
+    'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+    JSON.stringify(payloadObj) + '\r\n' +
+    '--' + boundary + '--';
+
+  let url = 'https://www.googleapis.com/upload/drive/v3/files';
+  let method = 'POST';
+  if(googleSyncFileId){
+    url += '/' + googleSyncFileId + '?uploadType=multipart';
+    method = 'PATCH';
+  }else{
+    url += '?uploadType=multipart';
+  }
+
+  const resp = await googleApi(url, {
+    method,
+    headers: {'Content-Type': 'multipart/related; boundary=' + boundary},
+    body
+  });
+  const saved = await resp.json();
+  if(saved && saved.id){
+    googleSyncFileId = saved.id;
+  }
+  setSyncStatus('Drive 동기화 완료');
+}
+async function syncToDrive(showAlert=false){
+  try{
+    if(location.protocol === 'file:'){
+      if(showAlert) alert('구글 드라이브 자동 동기화는 file://로 연 HTML에서는 동작하지 않아요. HTTPS로 올린 뒤 사용해 주세요.');
+      return;
+    }
+    if(!googleAccessToken){
+      if(showAlert) alert('먼저 "구글 드라이브 연결"을 눌러 로그인해 주세요.');
+      return;
+    }
+    if(!googleSyncFileId){
+      await findSyncFile();
+    }
+    const payload = makeSyncPayload();
+    await uploadSyncPayload(payload);
+    if(showAlert) alert('구글 드라이브에 저장했어요.');
+  }catch(e){
+    if(showAlert) alert('Drive 저장 중 오류가 발생했어요.');
+    setSyncStatus('Drive 저장 오류');
+  }
+}
+async function syncFromDrive(){
+  try{
+    if(location.protocol === 'file:'){
+      alert('구글 드라이브 자동 동기화는 file://로 연 HTML에서는 동작하지 않아요. HTTPS로 올린 뒤 사용해 주세요.');
+      return;
+    }
+    if(!googleAccessToken){
+      alert('먼저 "구글 드라이브 연결"을 눌러 로그인해 주세요.');
+      return;
+    }
+    if(!googleSyncFileId){
+      await findSyncFile();
+      if(!googleSyncFileId){
+        alert('Drive에 저장된 동기화 파일이 아직 없어요.');
+        return;
+      }
+    }
+    const resp = await googleApi('https://www.googleapis.com/drive/v3/files/' + googleSyncFileId + '?alt=media');
+    const parsed = await resp.json();
+    if(!parsed || parsed.app !== 'study_note_app'){
+      alert('올바른 동기화 파일이 아니에요.');
+      return;
+    }
+    notes = Array.isArray(parsed.notes) ? parsed.notes : [];
+    ekgis = Array.isArray(parsed.ekgis) ? parsed.ekgis : [];
+    subjects = Array.isArray(parsed.subjects) && parsed.subjects.length ? parsed.subjects : DEF_SUBJECTS.slice();
+    const ok = await persistAll();
+    if(ok){
+      resetFilters();
+      populateSubjectSelects();
+      populateGradeSelects();
+      closeAll();
+      render();
+      setSyncStatus('Drive에서 불러오기 완료');
+      alert('구글 드라이브에서 데이터를 불러왔어요.');
+    }
+  }catch(e){
+    alert('Drive에서 불러오는 중 오류가 발생했어요.');
+    setSyncStatus('Drive 불러오기 오류');
+  }
+}
+
+async function init(){ await loadAll(); populateSubjectSelects(); populateGradeSelects(); initStars(); syncViewButtons(); toggleModeSpecificUI(); render(); }
+init();
+</script>
+</body>
+</html>
